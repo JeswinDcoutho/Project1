@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jen-node-deployment
+  labels:
+    app: jen-node
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jen-node
+  template:
+    metadata:
+      labels:
+        app: jen-node
+    spec:
+      containers:
+        - name: jen-node
+          image: YOUR_DOCKERHUB_USERNAME/jen-node:v1
+          ports:
+            - containerPort: 3000

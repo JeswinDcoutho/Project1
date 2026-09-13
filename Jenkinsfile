@@ -26,11 +26,15 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        echo "$DOCKER_PASS" | docker login \
+                            -u "$DOCKER_USER" \
+                            --password-stdin
 
-                        docker tag jen-ng "$DOCKER_USER/jen-ng:$BUILD_NUMBER"
+                        docker tag jen-ng \
+                            "$DOCKER_USER/jen-ng:$BUILD_NUMBER"
 
-                        docker push "$DOCKER_USER/jen-ng:$BUILD_NUMBER"
+                        docker push \
+                            "$DOCKER_USER/jen-ng:$BUILD_NUMBER"
                     '''
                 }
             }
@@ -38,20 +42,48 @@ pipeline {
 
         stage('Deploy to Minikube') {
             steps {
-                sh '''
-                    kubectl apply -f Deployment.yaml
-                    kubectl apply -f Service.yaml
-                '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        passwordVariable: 'DOCKER_PASS',
+                        usernameVariable: 'DOCKER_USER'
+                    )
+                ]) {
+                    sh '''
+                        echo "Kubernetes nodes:"
+                        kubectl get nodes
+
+                        echo "Applying Deployment..."
+                        kubectl apply -f Deployment.yaml
+
+                        echo "Applying Service..."
+                        kubectl apply -f Service.yaml
+
+                        echo "Updating image..."
+                        kubectl set image deployment/jen-node-deployment \
+                            jen-node=$DOCKER_USER/jen-ng:$BUILD_NUMBER
+
+                        echo "Waiting for rollout..."
+                        kubectl rollout status deployment/jen-node-deployment
+                    '''
+                }
             }
         }
 
         stage('Check Deployment') {
             steps {
                 sh '''
+                    echo "Deployments:"
+                    kubectl get deployments
+
+                    echo "Pods:"
                     kubectl get pods
+
+                    echo "Services:"
                     kubectl get services
                 '''
             }
         }
     }
 }
+

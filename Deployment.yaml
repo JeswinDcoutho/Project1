@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: jen-node
-          image: jeswindcoutho/jen-node:v1
+          image: jeswindcoutho/jen-node:latest
           ports:
             - containerPort: 3000

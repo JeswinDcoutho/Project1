@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: jen-node
-          image: YOUR_DOCKERHUB_USERNAME/jen-node:v1
+          image: jeswindcoutho/jen-node:v1
           ports:
             - containerPort: 3000

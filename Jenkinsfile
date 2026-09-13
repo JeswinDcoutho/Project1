@@ -31,10 +31,10 @@ pipeline {
                             --password-stdin
 
                         docker tag jen-ng \
-                            "$DOCKER_USER/jen-ng:$BUILD_NUMBER"
+                            "$DOCKER_USER/jen-node:latest"
 
                         docker push \
-                            "$DOCKER_USER/jen-ng:$BUILD_NUMBER"
+                            "$DOCKER_USER/jen-node:latest"
                     '''
                 }
             }
@@ -58,13 +58,6 @@ pipeline {
 
                         echo "Applying Service..."
                         kubectl apply -f Service.yaml
-
-                        echo "Updating image..."
-                        kubectl set image deployment/jen-node-deployment \
-                            jen-node=$DOCKER_USER/jen-ng:$BUILD_NUMBER
-
-                        echo "Waiting for rollout..."
-                        kubectl rollout status deployment/jen-node-deployment
                     '''
                 }
             }
